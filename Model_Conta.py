@@ -17,11 +17,11 @@ class Conta(ABC):
             return f"{self.__class__.__name__}: ag:{self.ag}, numero:{self.numero}, _saldo:{self._saldo}, titular:{self.titular}, tipo:{self.tipo}, limite_saques_diario:{self.limite_saques_diario}, limite_por_saque:{self.limite_por_saque}, limite_da_conta:{self.limite_da_conta}"
 
     @abstractmethod
-    def sacar(self):
+    def sacar(self, valor):
         pass
 
     @abstractmethod
-    def depositar(self):
+    def depositar(self, valor, conta_destino):
         pass
 
     #@abstractmethod

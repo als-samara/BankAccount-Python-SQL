@@ -3,12 +3,7 @@ class Extrato:
         self.operacoes = []
 
     def __str__(self):
-        if len(self.operacoes) <= 0:
+        if len(self.operacoes) <= 1:
             return "Não foram realizadas movimentações"
         else:
             return '\n'.join(map(str, self.operacoes))
-
-extrato = Extrato()
-#print(extrato)
-#extrato.operacoes.append('aaa')
-#print(f"\n{extrato}")

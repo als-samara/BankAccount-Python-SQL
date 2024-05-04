@@ -91,41 +91,46 @@ def pesquisar_conta_por_numero(numero_conta):
 def deposito(nro_conta_destino, valor):
     conta_pesquisada = pesquisar_conta_por_numero(nro_conta_destino)
 
-    # transforma a tupla em objeto Conta_corrente pra acessar os atributos
-    agencia, numero, saldo, tipo, titular, limite_saques_diario, limite_por_saque, limite_da_conta, limite_referencia, extrato_id = conta_pesquisada
-    conta_destino = Conta_corrente(tipo, titular, numero, saldo, agencia, extrato_id, limite_saques_diario, limite_por_saque,
-                                        limite_da_conta, limite_referencia)
+    if conta_pesquisada is not None:
+        # transforma a tupla conta_pesquisada em objeto Conta_corrente pra acessar os atributos e método depositar
+        agencia, numero, saldo, tipo, titular, limite_saques_diario, limite_por_saque, limite_da_conta, limite_referencia, extrato_id = conta_pesquisada
+        conta_destino = Conta_corrente(tipo, titular, numero, saldo, agencia, extrato_id, limite_saques_diario, limite_por_saque,
+                                            limite_da_conta, limite_referencia)
 
-    diferenca_limite = conta_destino.limite_referencia - conta_destino.limite_da_conta
-    if (conta_destino.limite_referencia > conta_destino.limite_da_conta) and valor <= diferenca_limite:
-        conta_destino.limite_da_conta += valor
-        execute_query(db_connection, f"UPDATE tb_checking_accounts SET limite_da_conta = {conta_destino.limite_da_conta}")
-    elif (conta_destino.limite_referencia > conta_destino.limite_da_conta) and valor > diferenca_limite:
-        conta_destino.limite_da_conta = conta_destino.limite_referencia
-        execute_query(db_connection, f"UPDATE tb_checking_accounts SET limite_da_conta = {conta_destino.limite_referencia}")
+        conta_destino.depositar(valor, conta_destino)  # realiza as alterações no saldo e limite, se aplicável
 
-    update_saldo_query = f"""UPDATE tb_checking_accounts 
-                SET saldo = {conta_destino._saldo + valor}
-                WHERE numero_conta = {conta_destino.numero}
-    """
-    execute_query(db_connection, update_saldo_query)
-    conta_destino._saldo += valor
+        # atualiza o extrato bancário com a operação
+        extrato_query = f"""SELECT * FROM tb_extrato
+                                    WHERE id={conta_destino.extrato}
+        """
+        extrato_tupla = read_query(db_connection, extrato_query)
+        operacoes_anteriores = extrato_tupla[0][1]
+        nova_operacao = f"Depósito | Valor: R${valor: .2f} | Data: {time.localtime().tm_year}/{time.localtime().tm_mon}/{time.localtime().tm_mday} {time.localtime().tm_hour}:{time.localtime().tm_min}:{time.localtime().tm_sec}"
+        operacoes_atualizadas = f"{operacoes_anteriores}, {nova_operacao}"
 
-    extrato_query = f"""SELECT * FROM tb_extrato
-                                WHERE id={conta_destino.extrato}
-    """
-    extrato_tupla = read_query(db_connection, extrato_query)
-    operacoes_anteriores = extrato_tupla[0][1]
-    nova_operacao = f"Depósito | Valor: R${valor: .2f} | Data: {time.localtime().tm_year}/{time.localtime().tm_mon}/{time.localtime().tm_mday}"
-    operacoes_atualizadas = f"{operacoes_anteriores}, {nova_operacao}"
+        update_extrato_query = f"""UPDATE tb_extrato
+                    SET operacoes = '{operacoes_atualizadas}'
+                    WHERE id = {conta_destino.extrato}
+        """
+        execute_query(db_connection, update_extrato_query)
+        #todo: extrair método de localizar extrato e refatorar métodos de saques e depósitos
+        #todo: implementar e testar transferência
+        #todo: refatorar o código e documentar o projeto, commit e push
+    else:
+        return
 
-    update_extrato_query = f"""UPDATE tb_extrato
-                SET operacoes = '{operacoes_atualizadas}'
-                WHERE id = {conta_destino.extrato}
-    """
-    execute_query(db_connection, update_extrato_query)
+def saque(nro_conta, valor):
+    conta_pesquisada = pesquisar_conta_por_numero(nro_conta)
 
-    print(f"Depósito de R${valor: .2f} realizado com sucesso!\nSaldo: R${conta_destino._saldo: .2f}")
+    if conta_pesquisada is not None:
+        # transformar em conta, passar o valor
+        agencia, numero, saldo, tipo, titular, limite_saques_diario, limite_por_saque, limite_da_conta, limite_referencia, extrato_id = conta_pesquisada
+        conta = Conta_corrente(tipo, titular, numero, saldo, agencia, extrato_id, limite_saques_diario,
+                                       limite_por_saque,
+                                       limite_da_conta, limite_referencia)
+        conta.sacar(valor)
+    else:
+        return
 
 
-deposito(14, 3000)
+saque(14, 500)

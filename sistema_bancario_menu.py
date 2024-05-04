@@ -1,5 +1,5 @@
 from Controller_Cliente import cadastrar_cliente, pesquisar_cliente_por_cpf
-from Controller_Conta import cadastrar_conta, listar_contas, listar_contas_do_usuario, remover_conta
+from Controller_Conta import cadastrar_conta, listar_contas, listar_contas_do_usuario, remover_conta, deposito, saque
 from Model_Conta_corrente import Conta_corrente
 from Controller_Extrato import exibir_extrato
 
@@ -26,12 +26,22 @@ while True:
     option = input(menu)
 
     if option == '1':
-        pass
-    #input("Pressione qualquer tecla para voltar ao Menu")
+        try:
+            numero = int(input("Digite o número da conta: "))
+            valor = int(input("Digite o valor: "))
+            deposito(numero, valor)
+        except ValueError:
+            print("Verifique as informações inseridas e tente novamente")
+        input("Pressione qualquer tecla para voltar ao Menu")
 
     elif option == '2':
-        pass
-    #input("Pressione qualquer tecla para voltar ao Menu")
+        try:
+            numero = int(input("Digite o número da conta: "))
+            valor = int(input("Digite o valor: "))
+            saque(numero, valor)
+        except ValueError:
+            print("Verifique as informações inseridas e tente novamente")
+        input("Pressione qualquer tecla para voltar ao Menu")
 
     elif option == '3':
         numero_conta = int(input("Digite o número da conta: "))
@@ -40,7 +50,7 @@ while True:
 
     elif option == '4':
         pass
-    #input("Pressione qualquer tecla para voltar ao Menu")
+        #input("Pressione qualquer tecla para voltar ao Menu")
 
     elif option == '5':
         try:

@@ -1,5 +1,5 @@
 import mysql.connector
-from mysql.connector import  Error
+from mysql.connector import Error
 import pandas as pd
 
 """
@@ -108,4 +108,5 @@ db_connection = create_server_connection('localhost','root','root', 'db_aramas_b
 #execute_query(db_connection, create_client_table)
 #execute_query(db_connection, create_account_table)
 alter_table_accounts = "ALTER TABLE tb_checking_accounts ADD COLUMN extrato_id BIGINT, ADD CONSTRAINT fk_extrato FOREIGN KEY (extrato_id) REFERENCES tb_extrato(id);"
-execute_query(db_connection, alter_table_accounts)
+#execute_query(db_connection, alter_table_accounts)
+#execute_query(db_connection, "ALTER TABLE tb_extrato MODIFY COLUMN operacoes TEXT;")
