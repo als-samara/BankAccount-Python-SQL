@@ -1,7 +1,6 @@
 from Model_Conta_corrente import Conta_corrente
 from db_connection import execute_query, db_connection, read_query, get_last_insert_id
-from Model_Extrato import Extrato
-import time
+from Controller_Cliente import validar_cpf
 
 def cadastrar_conta(Conta_corrente):
     sql_query_extrato = f"""
@@ -47,6 +46,9 @@ def listar_contas_do_usuario(cpf):
     query = f"""SELECT * FROM tb_checking_accounts
             WHERE titular={cpf}"""
 
+    if not validar_cpf(cpf):
+        return print("Número de CPF inválido")
+
     contas_usuario = read_query(db_connection, query)
 
     if not contas_usuario:
@@ -64,13 +66,19 @@ def listar_contas_do_usuario(cpf):
         print(conta_corrente.__str__(False))
 
 def verificar_existencia_conta(numero_conta):
-    query = f"SELECT * FROM tb_checking_accounts WHERE numero_conta={numero_conta};"
-    result = read_query(db_connection, query)
-    return result is None or len(result) == 0
+    try:
+        query = f"SELECT * FROM tb_checking_accounts WHERE numero_conta={numero_conta};"
+        result = read_query(db_connection, query)
+        if not result:  # Verifica se result é vazio
+            print("Conta não encontrada. Verifique o número da conta e tente novamente.")
+            return True
+        return result is None or len(result) == 0
+    except:
+        print("Conta não encontrada. Verifique o número da conta e tente novamente.")
+        return True
 
 def remover_conta(numero_conta):
     if verificar_existencia_conta(numero_conta):
-        print("Conta não encontrada. Verifique o número da conta e tente novamente.")
         return
     query = f"DELETE FROM tb_checking_accounts WHERE numero_conta={numero_conta};"
     confirma = input(f"Tem certeza que deseja excluir a conta {numero_conta}? Não será possível desfazer essa operação - [S / N] ")
@@ -82,55 +90,46 @@ def remover_conta(numero_conta):
 
 def pesquisar_conta_por_numero(numero_conta):
     if verificar_existencia_conta(numero_conta):
-        print("Conta não encontrada. Verifique o número da conta e tente novamente.")
+        #print("Conta não encontrada. Verifique o número da conta e tente novamente.")
         return
     query = f"SELECT * FROM tb_checking_accounts WHERE numero_conta={numero_conta}"
     query_return = read_query(db_connection, query)  # tupla em uma lista
     return query_return[0]  # tupla
 
-def deposito(nro_conta_destino, valor):
-    conta_pesquisada = pesquisar_conta_por_numero(nro_conta_destino)
-
+def map_to_conta_corrente(nro_conta):
+    conta_pesquisada = pesquisar_conta_por_numero(nro_conta)
     if conta_pesquisada is not None:
-        # transforma a tupla conta_pesquisada em objeto Conta_corrente pra acessar os atributos e método depositar
+        # desempacota a tupla e transforma em objeto Conta_corrente pra acessar os atributos e métodos
         agencia, numero, saldo, tipo, titular, limite_saques_diario, limite_por_saque, limite_da_conta, limite_referencia, extrato_id = conta_pesquisada
-        conta_destino = Conta_corrente(tipo, titular, numero, saldo, agencia, extrato_id, limite_saques_diario, limite_por_saque,
+        conta = Conta_corrente(tipo, titular, numero, saldo, agencia, extrato_id, limite_saques_diario, limite_por_saque,
                                             limite_da_conta, limite_referencia)
-
-        conta_destino.depositar(valor, conta_destino)  # realiza as alterações no saldo e limite, se aplicável
-
-        # atualiza o extrato bancário com a operação
-        extrato_query = f"""SELECT * FROM tb_extrato
-                                    WHERE id={conta_destino.extrato}
-        """
-        extrato_tupla = read_query(db_connection, extrato_query)
-        operacoes_anteriores = extrato_tupla[0][1]
-        nova_operacao = f"Depósito | Valor: R${valor: .2f} | Data: {time.localtime().tm_year}/{time.localtime().tm_mon}/{time.localtime().tm_mday} {time.localtime().tm_hour}:{time.localtime().tm_min}:{time.localtime().tm_sec}"
-        operacoes_atualizadas = f"{operacoes_anteriores}, {nova_operacao}"
-
-        update_extrato_query = f"""UPDATE tb_extrato
-                    SET operacoes = '{operacoes_atualizadas}'
-                    WHERE id = {conta_destino.extrato}
-        """
-        execute_query(db_connection, update_extrato_query)
-        #todo: extrair método de localizar extrato e refatorar métodos de saques e depósitos
-        #todo: implementar e testar transferência
-        #todo: refatorar o código e documentar o projeto, commit e push
+        return conta
     else:
+        return
+
+def deposito(nro_conta_destino, valor):
+    try:
+        conta_destino = map_to_conta_corrente(nro_conta_destino)
+        conta_destino.depositar(valor, conta_destino)
+    except:
         return
 
 def saque(nro_conta, valor):
-    conta_pesquisada = pesquisar_conta_por_numero(nro_conta)
-
-    if conta_pesquisada is not None:
-        # transformar em conta, passar o valor
-        agencia, numero, saldo, tipo, titular, limite_saques_diario, limite_por_saque, limite_da_conta, limite_referencia, extrato_id = conta_pesquisada
-        conta = Conta_corrente(tipo, titular, numero, saldo, agencia, extrato_id, limite_saques_diario,
-                                       limite_por_saque,
-                                       limite_da_conta, limite_referencia)
+    try:
+        conta = map_to_conta_corrente(nro_conta)
         conta.sacar(valor)
-    else:
+    except:
         return
 
+def transferencia(nro_conta_origem, nro_conta_destino, valor):
+    try:
+        if not verificar_existencia_conta(nro_conta_origem) and not verificar_existencia_conta(nro_conta_destino):
+            conta_origem = map_to_conta_corrente(nro_conta_origem)
+            conta_destino = map_to_conta_corrente(nro_conta_destino)
+            saque(conta_origem.numero, valor)
+            deposito(conta_destino.numero, valor)
+        else:
+            print("Uma das contas não foi encontrada.")
+    except Exception as e:
+        print(f"Erro durante a transferência: {e}")
 
-saque(14, 500)

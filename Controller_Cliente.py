@@ -17,11 +17,14 @@ def cadastrar_cliente(nome, nasc, cpf, endereco):
     if query_return is not None:
         if "Duplicate entry" in str(query_return):
             print("CPF já cadastrado. Verifique as informações digitadas e tente novamente.")
+            return
         elif "Incorrect date value" in str(query_return):
             print("Por favor, digite a data no formato solicitado (Ano-Mês-Dia)")
+            return
         else:
             print(query_return)
-#cadastrar_cliente('Samara', '1997-08-20', '12345678900', 'rua x, número 100')
+            return
+    print("Cliente cadastrado com sucesso")
 
 def pesquisar_cliente_por_cpf(cpf):
     query = f"SELECT * FROM tb_clients WHERE cpf={cpf};"

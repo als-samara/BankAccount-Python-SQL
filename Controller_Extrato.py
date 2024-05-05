@@ -6,12 +6,11 @@ import time
 
 def exibir_extrato(numero_conta):
     query = f"SELECT * FROM tb_extrato WHERE conta_numero={numero_conta}"
+
     if verificar_existencia_conta(numero_conta):
-        print("Conta não encontrada. Verifique o número da conta e tente novamente.")
         return
 
     result = read_query(db_connection, query)
-
     if not result or (len(result) == 1 and result[0][1] == 'EXTRATO BANCÁRIO'):
         print("Não foram realizadas movimentações")
         return

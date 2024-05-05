@@ -1,5 +1,5 @@
 from Controller_Cliente import cadastrar_cliente, pesquisar_cliente_por_cpf
-from Controller_Conta import cadastrar_conta, listar_contas, listar_contas_do_usuario, remover_conta, deposito, saque
+from Controller_Conta import cadastrar_conta, listar_contas, listar_contas_do_usuario, remover_conta, deposito, saque, transferencia
 from Model_Conta_corrente import Conta_corrente
 from Controller_Extrato import exibir_extrato
 
@@ -44,22 +44,37 @@ while True:
         input("Pressione qualquer tecla para voltar ao Menu")
 
     elif option == '3':
-        numero_conta = int(input("Digite o número da conta: "))
-        exibir_extrato(numero_conta)
+        try:
+            numero_conta = int(input("Digite o número da conta: "))
+            exibir_extrato(numero_conta)
+        except ValueError:
+            print("Verifique as informações inseridas e tente novamente")
         input("Pressione qualquer tecla para voltar ao Menu")
 
     elif option == '4':
-        pass
-        #input("Pressione qualquer tecla para voltar ao Menu")
+        try:
+            nro_origem = int(input("Digite o número da conta de origem: "))
+            nro_destino = int(input("Digite o número da conta de destino: "))
+            valor = int(input("Digite o valor: "))
+            confirma = input(f"Deseja confirmar a transferência de {valor: .2f} da conta {nro_origem} para a conta {nro_destino}? [S / N] ")
+            if confirma.upper() == 'S':
+                transferencia(nro_origem, nro_destino, valor)
+        except ValueError:
+            print("Verifique as informações inseridas e tente novamente")
+        input("Pressione qualquer tecla para voltar ao Menu")
 
     elif option == '5':
         try:
             nome = input("Digite o nome completo: ")
             nasc = input("Digite a data de nascimento no formato YYYY-MM-DD: ")
             cpf = input("Digite o CPF: ")
-            endereco = input("Digite o endereco: ")
+            rua = input("Digite o nome da rua do cliente: ")
+            numero = input("Digite o número da casa: ")
+            bairro = input("Digite o bairro: ")
+            cidade = input("Digite a cidade: ")
+            estado = input("Digite a sigla do estado: ")
+            endereco = f"Rua: {rua}, nro {numero} - {bairro} - {cidade}/{estado}"
             cadastrar_cliente(nome, nasc, cpf, endereco)
-            print("Cliente cadastrado com sucesso")
         except:
             print("Verifique as informações digitadas e tente novamente")
         finally:

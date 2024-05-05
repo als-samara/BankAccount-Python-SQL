@@ -47,7 +47,7 @@ def execute_query(connection, query):
         connection.commit()
         #print("Query successful")
     except Error as err:
-        print(f"Error: '{err}'")
+        #print(f"Error: '{err}'")
         return err
 
 def read_query(connection, query):
@@ -58,7 +58,8 @@ def read_query(connection, query):
         result = cursor.fetchall()
         return result
     except Error as err:
-        print(f"Error: '{err}'")
+        return err
+        #print(f"Error: '{err}'")
 
 def get_last_insert_id(connection):
     cursor = connection.cursor()

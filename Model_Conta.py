@@ -23,7 +23,3 @@ class Conta(ABC):
     @abstractmethod
     def depositar(self, valor, conta_destino):
         pass
-
-    #@abstractmethod
-    def transferir(self):
-        pass

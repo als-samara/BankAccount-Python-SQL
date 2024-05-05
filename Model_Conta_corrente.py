@@ -15,6 +15,7 @@ class Conta_corrente(Conta):
 
     def depositar(self, valor, conta_destino):
         diferenca_limite = self.limite_referencia - self.limite_da_conta
+        extrato_id = self.retornar_extrato_id_por_numero_da_conta(self.numero)
 
         if (self.limite_referencia > self.limite_da_conta) and (valor <= diferenca_limite):
             self.limite_da_conta += valor
@@ -22,23 +23,22 @@ class Conta_corrente(Conta):
         elif (self.limite_referencia > self.limite_da_conta) and (valor > diferenca_limite):
             self.limite_da_conta = self.limite_referencia
             execute_query(db_connection, f"UPDATE tb_checking_accounts SET limite_da_conta = {conta_destino.limite_referencia} WHERE numero_conta = {conta_destino.numero}")
-        #self._saldo += valor
         update_saldo_query = f"""UPDATE tb_checking_accounts 
                         SET saldo = {conta_destino._saldo + valor}
                         WHERE numero_conta = {conta_destino.numero}
             """
         execute_query(db_connection, update_saldo_query)
 
-        print(f"Depósito de R${valor: .2f} realizado com sucesso!\nSaldo: R${conta_destino._saldo + valor: .2f}")
-
+        self.atualizar_extrato(valor, extrato_id, 'deposito')
+        return print(f"Depósito de R${valor: .2f} realizado na conta número {self.numero}")
 
     def sacar(self, valor):
         extrato_id = self.retornar_extrato_id_por_numero_da_conta(self.numero)
+
         if Conta_corrente.limite_saques_atingido(self.limite_saques_diario, extrato_id):
             return print("Você atingiu o limite de saques diários!")
 
         saldo_disponivel = self._disp_para_saque()
-
         if (valor <= saldo_disponivel) and (valor <= self.limite_por_saque):
             if valor > self._saldo and valor <= self.limite_da_conta and self._saldo > 0:  # checa se usou limite, além do saldo
                 limite_usado = valor - self._saldo  # calcula quanto limite usou
@@ -65,26 +65,9 @@ class Conta_corrente(Conta):
             else:
                 return print("Valor fora do seu limite por saque. Consulte seu gerente ou app do banco para mais informações.")
 
-        find_extrato_query = f"SELECT * FROM tb_extrato WHERE id={extrato_id}"
-        extrato_tupla = read_query(db_connection, find_extrato_query)
-        operacoes_anteriores = extrato_tupla[0][1]
-        nova_operacao = f"Saque | Valor: R${valor: .2f} | Data: {time.localtime().tm_year}/{time.localtime().tm_mon}/{time.localtime().tm_mday} {time.localtime().tm_hour}:{time.localtime().tm_min}:{time.localtime().tm_sec}"
-        operacoes_atualizadas = f"{operacoes_anteriores}, {nova_operacao}"
-        update_extrato_query = f"""UPDATE tb_extrato
-                            SET operacoes = '{operacoes_atualizadas}'
-                            WHERE id = {extrato_id}
-                """
-        execute_query(db_connection, update_extrato_query)
-        return print(f"Saque de R${valor: .2f} realizado com sucesso!\nSaldo: R${self._saldo: .2f}")
+        self.atualizar_extrato(valor, extrato_id, 'saque')
 
-    def transferir(self, valor, nmr_conta_origem, nmr_conta_destino):
-        pass
-        # criar métodos CRUD, método de gerar automaticamente o número da conta
-        # criar método para listar as contas por número
-        # procurar pelo numero da conta de origem e destino (args do método)
-        # criar exceção caso não encontre as contas
-        # usar o método sacar na conta de origem
-        # usar o método depositar na conta de destino
+        return print(f"Saque de R${valor: .2f} realizado na conta número {self.numero}")
 
     @staticmethod
     def retornar_extrato_id_por_numero_da_conta(numero):
@@ -96,13 +79,6 @@ class Conta_corrente(Conta):
         if self._saldo > 0:
             return self._saldo + self.limite_da_conta
         return self.limite_da_conta
-
-    @staticmethod
-    def limite_saques_atingido_antigo(limite_saques_diario, extrato):
-        saques_hoje = sum(1 for operacao in extrato.operacoes if
-                          f"Saque" in operacao and f"{time.localtime().tm_year}/{time.localtime().tm_mon}/{time.localtime().tm_mday}" in operacao)
-        if saques_hoje >= limite_saques_diario:
-            return True
 
     @staticmethod
     def limite_saques_atingido(limite_saques_diario, extrato_id):
@@ -117,8 +93,28 @@ class Conta_corrente(Conta):
         else:
             return False
 
-    #def exibir_extrato(self):
-        #print(f"\n{self.extrato.__str__()}\nSaldo atual: R${self._saldo: .2f}")
+    def atualizar_extrato(self, valor, extrato_id, tipo_operacao):
+        find_extrato_query = f"SELECT * FROM tb_extrato WHERE id={extrato_id}"
+        extrato_tupla = read_query(db_connection, find_extrato_query)
+        operacoes_anteriores = extrato_tupla[0][1]
+
+        if tipo_operacao == 'deposito':
+            tipo_operacao_str = 'Depósito'
+        elif tipo_operacao == 'saque':
+            tipo_operacao_str = 'Saque'
+        else:
+            raise ValueError("Tipo de operação inválido")
+
+        nova_operacao = f"{tipo_operacao_str} | Valor: R${valor: .2f} | Data: {time.localtime().tm_year}/{time.localtime().tm_mon}/{time.localtime().tm_mday} {time.localtime().tm_hour}:{time.localtime().tm_min}:{time.localtime().tm_sec}"
+        operacoes_atualizadas = f"{operacoes_anteriores}, {nova_operacao}"
+        update_extrato_query = f"""UPDATE tb_extrato
+                                    SET operacoes = '{operacoes_atualizadas}'
+                                    WHERE id = {extrato_id}
+                        """
+        execute_query(db_connection, update_extrato_query)
+
+    #def exibir_saldo(self):
+        #print(f"Saldo atual: R${self._saldo: .2f}")
 
 """
 c1 = Conta_corrente('0001', 1, 400, 'samara', 1)
