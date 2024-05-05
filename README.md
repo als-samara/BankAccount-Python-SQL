@@ -6,6 +6,16 @@ Desafio do Bootcamp "Python AI Backend Developer" que consiste em modelar um sis
 
 O projeto foi implementado utilizando o PyCharm, funções Python e MySQL connector para a execução de queries e mapeamento das entidades para objetos. Foi aplicado o padrão MVC (Model-View-Controller).
 
+## Funcionalidades
+- Cadastrar Usuário
+- Cadastrar e Deletar Conta Corrente
+- Sacar
+- Depositar
+- Transferir valor entre contas
+- Listar Contas
+- Listar Contas do Usuário
+- Ver Extrato
+
 ## Requisitos
 
 - PyCharm (versão mais recente) ou outra IDE de sua preferência
