@@ -29,7 +29,4 @@ def cadastrar_cliente(nome, nasc, cpf, endereco):
 def pesquisar_cliente_por_cpf(cpf):
     query = f"SELECT * FROM tb_clients WHERE cpf={cpf};"
     query_return = read_query(db_connection, query)
-    #print(query_return)
     return query_return
-
-#pesquisar_cliente_por_cpf('46975938806')

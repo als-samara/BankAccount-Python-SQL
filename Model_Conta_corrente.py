@@ -112,36 +112,3 @@ class Conta_corrente(Conta):
                                     WHERE id = {extrato_id}
                         """
         execute_query(db_connection, update_extrato_query)
-
-    #def exibir_saldo(self):
-        #print(f"Saldo atual: R${self._saldo: .2f}")
-
-"""
-c1 = Conta_corrente('0001', 1, 400, 'samara', 1)
-
-# TESTES SAQUES
-print(c1)
-print(f"{c1.limite_da_conta} - limite")
-print(c1._saldo)
-c1.sacar(800)  # valor fora do limite
-c1.sacar(200)
-print(f"{c1.limite_da_conta} - limite")
-print(c1._saldo)
-c1.sacar(300)
-print(f"{c1.limite_da_conta} - limite")
-print(c1._saldo)
-c1.sacar(400)
-c1.sacar(100)  # já realizou 3 saques, não vai aceitar mais
-print(f"{c1.limite_da_conta} - limite")
-print(c1._saldo)
-print(c1.extrato)
-# SAQUE FUNCIONANDO CORRETAMENTE
-
-# TESTES DEPÓSITOS
-c1.depositar(500)
-c1.depositar(200)
-print(f"{c1.limite_da_conta} - limite")
-print(c1.extrato)
-c1.exibir_extrato()
-# DEPÓSITO FUNCIONANDO CORRETAMENTE
-"""

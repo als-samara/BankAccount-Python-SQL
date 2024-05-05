@@ -90,7 +90,6 @@ def remover_conta(numero_conta):
 
 def pesquisar_conta_por_numero(numero_conta):
     if verificar_existencia_conta(numero_conta):
-        #print("Conta não encontrada. Verifique o número da conta e tente novamente.")
         return
     query = f"SELECT * FROM tb_checking_accounts WHERE numero_conta={numero_conta}"
     query_return = read_query(db_connection, query)  # tupla em uma lista

@@ -1,21 +1,5 @@
 import mysql.connector
 from mysql.connector import Error
-import pandas as pd
-
-"""
-try:
-	db_connection = mysql.connector.connect(host='localhost', user='root', password='root', database='db_aramas_bank')
-	print("Database connection made!")
-except mysql.connector.Error as error:
-	if error.errno == errorcode.ER_BAD_DB_ERROR:
-		print("Database doesn't exist")
-	elif error.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-		print("User name or password is wrong")
-	else:
-		print(error)
-else:
-	db_connection.close()
-"""
 
 def create_server_connection(host_name, user_name, user_password, db_name):
     db_connection = None
@@ -59,7 +43,6 @@ def read_query(connection, query):
         return result
     except Error as err:
         return err
-        #print(f"Error: '{err}'")
 
 def get_last_insert_id(connection):
     cursor = connection.cursor()
@@ -98,16 +81,15 @@ CREATE TABLE tb_checking_accounts (
 create_extrato_table = """
 CREATE TABLE tb_extrato (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    operacoes VARCHAR(1500),
+    operacoes TEXT,
     conta_numero BIGINT,
     FOREIGN KEY (conta_numero) REFERENCES tb_checking_accounts(numero_conta)
 );
 """
 
-db_connection = create_server_connection('localhost','root','root', 'db_aramas_bank')
-#create_database(db_connection, "CREATE DATABASE IF NOT EXISTS db_aramas_bank")
-#execute_query(db_connection, create_client_table)
-#execute_query(db_connection, create_account_table)
+db_connection = create_server_connection('localhost','seu-mysql-username','sua-password', 'db_aramas_bank')
+create_database(db_connection, "CREATE DATABASE IF NOT EXISTS db_aramas_bank")
+execute_query(db_connection, create_client_table)
+execute_query(db_connection, create_account_table)
 alter_table_accounts = "ALTER TABLE tb_checking_accounts ADD COLUMN extrato_id BIGINT, ADD CONSTRAINT fk_extrato FOREIGN KEY (extrato_id) REFERENCES tb_extrato(id);"
-#execute_query(db_connection, alter_table_accounts)
-#execute_query(db_connection, "ALTER TABLE tb_extrato MODIFY COLUMN operacoes TEXT;")
+execute_query(db_connection, alter_table_accounts)

@@ -22,5 +22,3 @@ def exibir_extrato(numero_conta):
             extrato.operacoes.append(operacao)
 
     print(extrato)
-
-#exibir_extrato(14)
