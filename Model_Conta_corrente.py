@@ -3,6 +3,7 @@ import time
 from Model_Conta import Conta
 from Model_Extrato import Extrato
 from db_connection import db_connection, execute_query, read_query
+from datetime import datetime
 
 class Conta_corrente(Conta):
 
@@ -87,7 +88,7 @@ class Conta_corrente(Conta):
         for row in result:
             operacoes = row[1].split(", ")  # Divide a string em uma lista de operações
         saques_hoje = sum(1 for operacao in operacoes if
-                          f"Saque" in operacao and f"{time.localtime().tm_year}/{time.localtime().tm_mon}/{time.localtime().tm_mday}" in operacao)
+                          f"Saque" in operacao and f"{datetime.now().strftime("%d-%m-%Y")}" in operacao)
         if saques_hoje >= limite_saques_diario:
             return True
         else:
@@ -97,6 +98,7 @@ class Conta_corrente(Conta):
         find_extrato_query = f"SELECT * FROM tb_extrato WHERE id={extrato_id}"
         extrato_tupla = read_query(db_connection, find_extrato_query)
         operacoes_anteriores = extrato_tupla[0][1]
+        print(operacoes_anteriores)
 
         if tipo_operacao == 'deposito':
             tipo_operacao_str = 'Depósito'
@@ -105,7 +107,8 @@ class Conta_corrente(Conta):
         else:
             raise ValueError("Tipo de operação inválido")
 
-        nova_operacao = f"{tipo_operacao_str} | Valor: R${valor: .2f} | Data: {time.localtime().tm_year}/{time.localtime().tm_mon}/{time.localtime().tm_mday} {time.localtime().tm_hour}:{time.localtime().tm_min}:{time.localtime().tm_sec}"
+        #nova_operacao = f"{tipo_operacao_str} | Valor: R${valor: .2f} | Data: {time.localtime().tm_year}/{time.localtime().tm_mon}/{time.localtime().tm_mday} {time.localtime().tm_hour}:{time.localtime().tm_min}:{time.localtime().tm_sec}"
+        nova_operacao = f"{tipo_operacao_str} | Valor: R${valor: .2f} | Data: {datetime.now().strftime("%d-%m-%Y %H:%M:%S")}"
         operacoes_atualizadas = f"{operacoes_anteriores}, {nova_operacao}"
         update_extrato_query = f"""UPDATE tb_extrato
                                     SET operacoes = '{operacoes_atualizadas}'
