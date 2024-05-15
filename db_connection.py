@@ -87,9 +87,9 @@ CREATE TABLE tb_extrato (
 );
 """
 
-db_connection = create_server_connection('localhost','seu-mysql-username','sua-password', 'db_aramas_bank')
+db_connection = create_server_connection('localhost','root','root', 'db_aramas_bank')
 create_database(db_connection, "CREATE DATABASE IF NOT EXISTS db_aramas_bank")
-execute_query(db_connection, create_client_table)
-execute_query(db_connection, create_account_table)
-alter_table_accounts = "ALTER TABLE tb_checking_accounts ADD COLUMN extrato_id BIGINT, ADD CONSTRAINT fk_extrato FOREIGN KEY (extrato_id) REFERENCES tb_extrato(id);"
-execute_query(db_connection, alter_table_accounts)
+#execute_query(db_connection, create_client_table)
+#execute_query(db_connection, create_account_table)
+#alter_table_accounts = "ALTER TABLE tb_checking_accounts ADD COLUMN extrato_id BIGINT, ADD CONSTRAINT fk_extrato FOREIGN KEY (extrato_id) REFERENCES tb_extrato(id);"
+#execute_query(db_connection, alter_table_accounts)
