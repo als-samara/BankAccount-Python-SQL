@@ -2,6 +2,7 @@ from Controller_Cliente import cadastrar_cliente, pesquisar_cliente_por_cpf
 from Controller_Conta import cadastrar_conta, listar_contas, listar_contas_do_usuario, remover_conta, deposito, saque, transferencia
 from Model_Conta_corrente import Conta_corrente
 from Controller_Extrato import exibir_extrato
+import datetime
 
 menu = """
 
@@ -66,7 +67,8 @@ while True:
     elif option == '5':
         try:
             nome = input("Digite o nome completo: ")
-            nasc = input("Digite a data de nascimento no formato YYYY-MM-DD: ")
+            nasc = input("Digite a data de nascimento: ")
+            date_obj = datetime.datetime.strptime(nasc, "%d/%m/%Y").date()
             cpf = input("Digite o CPF: ")
             rua = input("Digite o nome da rua do cliente: ")
             numero = input("Digite o número da casa: ")
@@ -74,7 +76,7 @@ while True:
             cidade = input("Digite a cidade: ")
             estado = input("Digite a sigla do estado: ")
             endereco = f"Rua: {rua}, nro {numero} - {bairro} - {cidade}/{estado}"
-            cadastrar_cliente(nome, nasc, cpf, endereco)
+            cadastrar_cliente(nome, date_obj, cpf, endereco)
         except:
             print("Verifique as informações digitadas e tente novamente")
         finally:

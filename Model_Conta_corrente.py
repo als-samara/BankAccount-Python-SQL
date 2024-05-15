@@ -107,7 +107,6 @@ class Conta_corrente(Conta):
         else:
             raise ValueError("Tipo de operação inválido")
 
-        #nova_operacao = f"{tipo_operacao_str} | Valor: R${valor: .2f} | Data: {time.localtime().tm_year}/{time.localtime().tm_mon}/{time.localtime().tm_mday} {time.localtime().tm_hour}:{time.localtime().tm_min}:{time.localtime().tm_sec}"
         nova_operacao = f"{tipo_operacao_str} | Valor: R${valor: .2f} | Data: {datetime.now().strftime("%d-%m-%Y %H:%M:%S")}"
         operacoes_atualizadas = f"{operacoes_anteriores}, {nova_operacao}"
         update_extrato_query = f"""UPDATE tb_extrato

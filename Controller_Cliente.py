@@ -9,17 +9,20 @@ def cadastrar_cliente(nome, nasc, cpf, endereco):
         return
 
     cliente = Cliente(nome, nasc, cpf, endereco)
-    query_return = execute_query(db_connection, f"""
-    INSERT INTO tb_clients VALUES 
-    ('{cliente.cpf}','{cliente.nome}','{cliente.nasc}','{cliente.endereco}')
-    """)
+    if cliente.checa_idade(nasc) >= 18:
+        query_return = execute_query(db_connection, f"""
+        INSERT INTO tb_clients VALUES 
+        ('{cliente.cpf}','{cliente.nome}','{cliente.nasc}','{cliente.endereco}')
+        """)
+    else:
+        return print("Não é possível criar uma Conta Corrente para menores de idade")
 
     if query_return is not None:
         if "Duplicate entry" in str(query_return):
             print("CPF já cadastrado. Verifique as informações digitadas e tente novamente.")
             return
         elif "Incorrect date value" in str(query_return):
-            print("Por favor, digite a data no formato solicitado (Ano-Mês-Dia)")
+            print("Verifique o formato dos objetos de data")
             return
         else:
             print(query_return)
