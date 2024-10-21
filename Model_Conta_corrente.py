@@ -66,7 +66,7 @@ class Conta_corrente(Conta):
                 print("Você não possui saldo suficiente para realizar esta operação")
                 return False
             else:
-                priny("Valor fora do seu limite por saque. Consulte seu gerente ou app do banco para mais informações.")
+                print("Valor fora do seu limite por saque. Consulte seu gerente ou app do banco para mais informações.")
                 return False
 
         self.atualizar_extrato(valor, extrato_id, 'saque')

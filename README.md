@@ -40,7 +40,7 @@ Certifique-se de ter o Docker instalado no ambiente local. Após o git clone, ex
 docker compose run --rm python-app
 ```
 
-Esse comando cria o container e executa a aplicação de modo interativo no terminal.
+Esse comando cria e configura os containeres da aplicação e banco de dados MySQL e executa a aplicação de modo interativo no terminal.
 
 ## Contribuições
 
