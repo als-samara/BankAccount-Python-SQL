@@ -1,0 +1,33 @@
+services:
+  mysql:
+    image: mysql:8.0   # Versão do MySQL
+    container_name: mysql_container
+    environment:
+      DB_HOST: mysql   # O host do banco de dados será o nome do serviço MySQL
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: db_aramas_bank
+    ports:
+      - "3306:3306"   # Expõe a porta 3306 para conectar do lado de fora do container
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  python-app:
+    build:
+      context: .
+    image: bank_account
+    container_name: baccount_container
+    command: python3 sistema_bancario_menu.py
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql   # O host do banco de dados será o nome do serviço MySQL
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: db_aramas_bank
+    volumes:
+      - .:/baccount

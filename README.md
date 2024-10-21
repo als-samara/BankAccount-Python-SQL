@@ -30,7 +30,17 @@ Para executar o projeto localmente, execute o comando git clone, navegue até a 
 pip install mysql-connector-python
 ```
 
-No arquivo db-connection.py altere o usuário e a senha do MySQL na chamada da função create_server_connection e execute o arquivo. Após a primeira execução, o projeto irá criar o banco de dados e as tabelas. Para evitar erros nas demais execuções do projeto, comente as linhas 91 a 95 do arquivo db_connection.py.
+No arquivo db-connection.py altere o usuário e a senha do MySQL na chamada da função create_server_connection e execute o arquivo. Após a primeira execução, o projeto irá criar o banco de dados e as tabelas.
+
+## Executando com Docker
+
+Certifique-se de ter o Docker instalado no ambiente local. Após o git clone, execute o seguinte comando:
+
+```
+docker compose run --rm python-app
+```
+
+Esse comando cria o container e executa a aplicação de modo interativo no terminal.
 
 ## Contribuições
 

@@ -34,7 +34,7 @@ def listar_contas():
     query = "SELECT * FROM tb_checking_accounts;"
     contas = read_query(db_connection, query)
     if not contas:
-        raise Exception("Nenhuma conta encontrada")
+        print("Nenhuma conta encontrada")
     for conta in contas:
         # Para cada conta, desempacota os valores da tupla (conta) nas variáveis correspondentes:
         agencia, numero, saldo, tipo, titular, limite_saques_diario, limite_por_saque, limite_da_conta, limite_referencia, extrato_id = conta
@@ -116,7 +116,7 @@ def deposito(nro_conta_destino, valor):
 def saque(nro_conta, valor):
     try:
         conta = map_to_conta_corrente(nro_conta)
-        conta.sacar(valor)
+        return conta.sacar(valor)
     except:
         return
 
@@ -125,8 +125,11 @@ def transferencia(nro_conta_origem, nro_conta_destino, valor):
         if not verificar_existencia_conta(nro_conta_origem) and not verificar_existencia_conta(nro_conta_destino):
             conta_origem = map_to_conta_corrente(nro_conta_origem)
             conta_destino = map_to_conta_corrente(nro_conta_destino)
-            saque(conta_origem.numero, valor)
-            deposito(conta_destino.numero, valor)
+            retorno_saque = saque(conta_origem.numero, valor)
+            if retorno_saque == False:
+                return print("Não é possível realizar essa transferência, consulte seus limites de saque ou da conta no app do banco")
+            else:
+                conta_destino.depositar(valor, conta_destino)
         else:
             print("Uma das contas não foi encontrada.")
     except Exception as e:

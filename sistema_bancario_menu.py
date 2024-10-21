@@ -85,11 +85,16 @@ while True:
     elif option == '6':
         tipo = 0
         while tipo != 1:
-            tipo = int(input("""
+            entrada = input("""
             Vamos começar o cadastro da sua conta! 
             Para cadastrar uma conta corrente, digite 1. 
             A funcionalidade de cadastrar uma conta Poupança está em desenvolvimento e será lançada em breve! 
-            """))
+            """)
+            if entrada.isdigit():
+                tipo = int(entrada)
+            else:
+                print("Entrada inválida. Por favor, digite um número.")
+
         cpf = input("Digite o CPF do titular da conta: ")
         pesquisa_titular = pesquisar_cliente_por_cpf(cpf)
         if len(pesquisa_titular) == 0:

@@ -37,7 +37,8 @@ class Conta_corrente(Conta):
         extrato_id = self.retornar_extrato_id_por_numero_da_conta(self.numero)
 
         if Conta_corrente.limite_saques_atingido(self.limite_saques_diario, extrato_id):
-            return print("Você atingiu o limite de saques diários!")
+            print("Você atingiu o limite de saques diários!")
+            return False
 
         saldo_disponivel = self._disp_para_saque()
         if (valor <= saldo_disponivel) and (valor <= self.limite_por_saque):
@@ -62,13 +63,16 @@ class Conta_corrente(Conta):
             execute_query(db_connection, update_saldo_query)
         else:
             if (valor > saldo_disponivel):
-                return print("Você não possui saldo suficiente para realizar esta operação")
+                print("Você não possui saldo suficiente para realizar esta operação")
+                return False
             else:
-                return print("Valor fora do seu limite por saque. Consulte seu gerente ou app do banco para mais informações.")
+                priny("Valor fora do seu limite por saque. Consulte seu gerente ou app do banco para mais informações.")
+                return False
 
         self.atualizar_extrato(valor, extrato_id, 'saque')
 
-        return print(f"Saque de R${valor: .2f} realizado na conta número {self.numero}")
+        print(f"Saque de R${valor: .2f} realizado na conta número {self.numero}")
+        return True
 
     @staticmethod
     def retornar_extrato_id_por_numero_da_conta(numero):
@@ -98,7 +102,6 @@ class Conta_corrente(Conta):
         find_extrato_query = f"SELECT * FROM tb_extrato WHERE id={extrato_id}"
         extrato_tupla = read_query(db_connection, find_extrato_query)
         operacoes_anteriores = extrato_tupla[0][1]
-        print(operacoes_anteriores)
 
         if tipo_operacao == 'deposito':
             tipo_operacao_str = 'Depósito'
